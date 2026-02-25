@@ -1,0 +1,26 @@
+# SoundCloud MP3 Downloader - Dependencies
+# Educational Project for Academic Demonstration
+
+# Core Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Database
+Flask-SQLAlchemy==3.1.1
+SQLAlchemy>=2.0.36
+
+# Audio Processing - yt-dlp for downloading audio from SoundCloud
+yt-dlp
+
+# Production Server
+gunicorn==21.2.0
+
+# Session Security
+Flask-Login==0.6.3
+
+# Form Handling
+Flask-WTF==1.2.1
+WTForms==3.1.1
+
+# Password Hashing
+bcrypt==4.1.2

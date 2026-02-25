@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    Admin Download Logs Page
+    ========================
+    View and manage download history
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Download Logs - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-page">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="logo-icon">🎵</span>
+            <span class="logo-text">Admin Panel</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_settings') }}" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+            <a href="{{ url_for('admin_logs') }}" class="nav-item active">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Download Logs</span>
+            </a>
+            <a href="{{ url_for('admin_change_password') }}" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-text">Change Password</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="{{ url_for('index') }}" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">View Site</span>
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="content-header">
+            <h1>Download Logs</h1>
+            <div class="header-actions">
+                <form action="{{ url_for('admin_clear_logs') }}" method="POST" 
+                      onsubmit="return confirm('Are you sure you want to delete all logs? This cannot be undone.');">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        🗑️ Clear All Logs
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Filter Options -->
+        <section class="filters">
+            <form method="GET" action="{{ url_for('admin_logs') }}" class="filter-form">
+                <div class="filter-group">
+                    <label for="status">Filter by Status:</label>
+                    <select name="status" id="status" onchange="this.form.submit()">
+                        <option value="">All Status</option>
+                        <option value="success" {% if status_filter == 'success' %}selected{% endif %}>Success</option>
+                        <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+            </form>
+        </section>
+
+        <!-- Logs Table -->
+        <section class="logs-table">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>URL</th>
+                            <th>Status</th>
+                            <th>Filename</th>
+                            <th>IP Address</th>
+                            <th>Created</th>
+                            <th>Completed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if logs.items %}
+                            {% for log in logs.items %}
+                                <tr>
+                                    <td>{{ log.id }}</td>
+                                    <td class="url-cell" title="{{ log.url }}">
+                                        <a href="{{ log.url }}" target="_blank" rel="noopener">
+                                            {{ log.url[:40] }}{% if log.url|length > 40 %}...{% endif %}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ log.status }}">
+                                            {{ log.status }}
+                                        </span>
+                                    </td>
+                                    <td class="filename-cell">
+                                        {% if log.filename %}
+                                            {{ log.filename[:30] }}{% if log.filename|length > 30 %}...{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.ip_address or 'N/A' }}</td>
+                                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>
+                                        {% if log.completed_at %}
+                                            {{ log.completed_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if log.error_message %}
+                                <tr class="error-row">
+                                    <td colspan="7" class="error-details">
+                                        <strong>Error:</strong> {{ log.error_message }}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    {% if status_filter %}
+                                        No logs found with status "{{ status_filter }}".
+                                        <a href="{{ url_for('admin_logs') }}">Clear filter</a>
+                                    {% else %}
+                                        No download logs yet.
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if logs.pages > 1 %}
+            <nav class="pagination">
+                {% if logs.has_prev %}
+                    <a href="{{ url_for('admin_logs', page=logs.prev_num, status=status_filter) }}" class="page-link">&laquo; Previous</a>
+                {% else %}
+                    <span class="page-link disabled">&laquo; Previous</span>
+                {% endif %}
+                
+                <span class="page-info">
+                    Page {{ logs.page }} of {{ logs.pages }}
+                    ({{ logs.total }} total records)
+                </span>
+                
+                {% if logs.has_next %}
+                    <a href="{{ url_for('admin_logs', page=logs.next_num, status=status_filter) }}" class="page-link">Next &raquo;</a>
+                {% else %}
+                    <span class="page-link disabled">Next &raquo;</span>
+                {% endif %}
+            </nav>
+            {% endif %}
+        </section>
+
+        <!-- Statistics Summary -->
+        <section class="logs-summary">
+            <h3>Log Statistics</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span class="summary-value">{{ logs.total }}</span>
+                    <span class="summary-label">Total Logs{% if status_filter %} (filtered){% endif %}</span>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

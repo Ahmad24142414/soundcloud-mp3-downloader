@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    Admin Login Page
+    ================
+    Secure authentication for admin panel access
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Login - SoundCloud Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <!-- Logo -->
+            <div class="login-header">
+                <span class="logo-icon">🎵</span>
+                <h1>Admin Panel</h1>
+                <p>SoundCloud MP3 Downloader</p>
+            </div>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('admin_login') }}" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required 
+                        autocomplete="username"
+                        placeholder="Enter your username"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                    >
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    Login
+                </button>
+            </form>
+            
+            <!-- Back to Site Link -->
+            <div class="login-footer">
+                <a href="{{ url_for('index') }}">&larr; Back to Site</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

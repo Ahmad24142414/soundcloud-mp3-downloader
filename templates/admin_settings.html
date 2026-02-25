@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    Admin Settings Page
+    ===================
+    Manage SEO, content, and feature settings
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Settings - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-page">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="logo-icon">🎵</span>
+            <span class="logo-text">Admin Panel</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_settings') }}" class="nav-item active">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+            <a href="{{ url_for('admin_logs') }}" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Download Logs</span>
+            </a>
+            <a href="{{ url_for('admin_change_password') }}" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-text">Change Password</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="{{ url_for('index') }}" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">View Site</span>
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="content-header">
+            <h1>Site Settings</h1>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Settings Form -->
+        <form method="POST" action="{{ url_for('admin_settings') }}" class="settings-form">
+            <!-- SEO Settings Section -->
+            <section class="settings-section">
+                <h2>🔍 SEO Settings</h2>
+                <p class="section-description">Configure meta tags for search engine optimization.</p>
+                
+                <div class="form-group">
+                    <label for="meta_title">Meta Title</label>
+                    <input 
+                        type="text" 
+                        id="meta_title" 
+                        name="meta_title" 
+                        value="{{ settings.get('meta_title', '') }}"
+                        maxlength="70"
+                        placeholder="Page title for search results (max 70 characters)"
+                    >
+                    <small>Appears in browser tabs and search results. Keep under 70 characters.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta_description">Meta Description</label>
+                    <textarea 
+                        id="meta_description" 
+                        name="meta_description" 
+                        rows="3"
+                        maxlength="160"
+                        placeholder="Brief description for search results (max 160 characters)"
+                    >{{ settings.get('meta_description', '') }}</textarea>
+                    <small>Shown in search results below the title. Keep under 160 characters.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta_keywords">Meta Keywords</label>
+                    <input 
+                        type="text" 
+                        id="meta_keywords" 
+                        name="meta_keywords" 
+                        value="{{ settings.get('meta_keywords', '') }}"
+                        placeholder="Comma-separated keywords"
+                    >
+                    <small>Comma-separated list of relevant keywords.</small>
+                </div>
+            </section>
+
+            <!-- Site Content Section -->
+            <section class="settings-section">
+                <h2>📝 Site Content</h2>
+                <p class="section-description">Edit the main content displayed on the homepage.</p>
+                
+                <div class="form-group">
+                    <label for="site_title">Site Title</label>
+                    <input 
+                        type="text" 
+                        id="site_title" 
+                        name="site_title" 
+                        value="{{ settings.get('site_title', '') }}"
+                        placeholder="Main site title"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="site_subtitle">Site Subtitle</label>
+                    <input 
+                        type="text" 
+                        id="site_subtitle" 
+                        name="site_subtitle" 
+                        value="{{ settings.get('site_subtitle', '') }}"
+                        placeholder="Tagline or subtitle"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="hero_heading">Hero Heading</label>
+                    <input 
+                        type="text" 
+                        id="hero_heading" 
+                        name="hero_heading" 
+                        value="{{ settings.get('hero_heading', '') }}"
+                        placeholder="Main heading on the homepage"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="hero_description">Hero Description</label>
+                    <textarea 
+                        id="hero_description" 
+                        name="hero_description" 
+                        rows="2"
+                        placeholder="Description text below the heading"
+                    >{{ settings.get('hero_description', '') }}</textarea>
+                </div>
+            </section>
+
+            <!-- How It Works Section -->
+            <section class="settings-section">
+                <h2>📖 How It Works Section</h2>
+                <p class="section-description">Configure the step-by-step instructions shown to users.</p>
+                
+                <div class="form-group">
+                    <label for="how_it_works_title">Section Title</label>
+                    <input 
+                        type="text" 
+                        id="how_it_works_title" 
+                        name="how_it_works_title" 
+                        value="{{ settings.get('how_it_works_title', 'How It Works') }}"
+                    >
+                </div>
+                
+                <div class="steps-grid">
+                    <div class="step-config">
+                        <h4>Step 1</h4>
+                        <div class="form-group">
+                            <label for="step_1_title">Title</label>
+                            <input type="text" id="step_1_title" name="step_1_title" value="{{ settings.get('step_1_title', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="step_1_desc">Description</label>
+                            <textarea id="step_1_desc" name="step_1_desc" rows="2">{{ settings.get('step_1_desc', '') }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="step-config">
+                        <h4>Step 2</h4>
+                        <div class="form-group">
+                            <label for="step_2_title">Title</label>
+                            <input type="text" id="step_2_title" name="step_2_title" value="{{ settings.get('step_2_title', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="step_2_desc">Description</label>
+                            <textarea id="step_2_desc" name="step_2_desc" rows="2">{{ settings.get('step_2_desc', '') }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="step-config">
+                        <h4>Step 3</h4>
+                        <div class="form-group">
+                            <label for="step_3_title">Title</label>
+                            <input type="text" id="step_3_title" name="step_3_title" value="{{ settings.get('step_3_title', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="step_3_desc">Description</label>
+                            <textarea id="step_3_desc" name="step_3_desc" rows="2">{{ settings.get('step_3_desc', '') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature Settings Section -->
+            <section class="settings-section">
+                <h2>🔧 Feature Settings</h2>
+                <p class="section-description">Enable or disable site features.</p>
+                
+                <div class="form-group">
+                    <label for="downloader_enabled">Download Feature</label>
+                    <select id="downloader_enabled" name="downloader_enabled">
+                        <option value="true" {% if settings.get('downloader_enabled', 'true') == 'true' %}selected{% endif %}>Enabled</option>
+                        <option value="false" {% if settings.get('downloader_enabled', 'true') == 'false' %}selected{% endif %}>Disabled</option>
+                    </select>
+                    <small>When disabled, users cannot download files. Useful for maintenance.</small>
+                </div>
+            </section>
+
+            <!-- Legal Section -->
+            <section class="settings-section">
+                <h2>⚖️ Legal & Disclaimer</h2>
+                <p class="section-description">Configure legal notices and disclaimers.</p>
+                
+                <div class="form-group">
+                    <label for="disclaimer_text">Disclaimer Text</label>
+                    <textarea 
+                        id="disclaimer_text" 
+                        name="disclaimer_text" 
+                        rows="4"
+                        placeholder="Legal disclaimer shown on the homepage"
+                    >{{ settings.get('disclaimer_text', '') }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="footer_text">Footer Text</label>
+                    <input 
+                        type="text" 
+                        id="footer_text" 
+                        name="footer_text" 
+                        value="{{ settings.get('footer_text', '') }}"
+                        placeholder="Copyright notice or footer text"
+                    >
+                </div>
+            </section>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    💾 Save All Settings
+                </button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Character counter for meta fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const fields = ['meta_title', 'meta_description'];
+            fields.forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    const maxLength = field.getAttribute('maxlength');
+                    const small = field.nextElementSibling;
+                    
+                    function updateCount() {
+                        const remaining = maxLength - field.value.length;
+                        if (remaining < 20) {
+                            small.style.color = '#e53e3e';
+                        } else {
+                            small.style.color = '';
+                        }
+                    }
+                    
+                    field.addEventListener('input', updateCount);
+                    updateCount();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

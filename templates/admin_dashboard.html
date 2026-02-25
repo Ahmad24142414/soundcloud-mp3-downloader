@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    Admin Dashboard
+    ===============
+    Main admin panel with statistics and recent activity
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dashboard - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-page">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="logo-icon">🎵</span>
+            <span class="logo-text">Admin Panel</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_settings') }}" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+            <a href="{{ url_for('admin_logs') }}" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Download Logs</span>
+            </a>
+            <a href="{{ url_for('admin_change_password') }}" class="nav-item">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-text">Change Password</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="{{ url_for('index') }}" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">View Site</span>
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="content-header">
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <span class="welcome-text">Welcome, {{ current_user.username }}</span>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Statistics Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📥</div>
+                <div class="stat-content">
+                    <h3>{{ total_downloads }}</h3>
+                    <p>Total Downloads</p>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <h3>{{ successful_downloads }}</h3>
+                    <p>Successful</p>
+                </div>
+            </div>
+            
+            <div class="stat-card danger">
+                <div class="stat-icon">❌</div>
+                <div class="stat-content">
+                    <h3>{{ failed_downloads }}</h3>
+                    <p>Failed</p>
+                </div>
+            </div>
+            
+            <div class="stat-card info">
+                <div class="stat-icon">{% if settings.get('downloader_enabled', 'true') == 'true' %}🟢{% else %}🔴{% endif %}</div>
+                <div class="stat-content">
+                    <h3>{% if settings.get('downloader_enabled', 'true') == 'true' %}Online{% else %}Offline{% endif %}</h3>
+                    <p>Downloader Status</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="{{ url_for('admin_settings') }}" class="btn btn-primary">
+                    ⚙️ Edit Settings
+                </a>
+                <a href="{{ url_for('admin_logs') }}" class="btn btn-secondary">
+                    📋 View All Logs
+                </a>
+                <a href="{{ url_for('index') }}" target="_blank" class="btn btn-outline">
+                    🌐 Open Website
+                </a>
+            </div>
+        </section>
+
+        <!-- Recent Downloads Table -->
+        <section class="recent-activity">
+            <div class="section-header">
+                <h2>Recent Downloads</h2>
+                <a href="{{ url_for('admin_logs') }}" class="link">View All &rarr;</a>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_logs %}
+                            {% for log in recent_logs %}
+                                <tr>
+                                    <td class="url-cell" title="{{ log.url }}">
+                                        {{ log.url[:50] }}{% if log.url|length > 50 %}...{% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ log.status }}">
+                                            {{ log.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ log.ip_address or 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="empty-state">No downloads yet</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- System Information -->
+        <section class="system-info">
+            <h2>System Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Framework</span>
+                    <span class="info-value">Flask + Python 3</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Database</span>
+                    <span class="info-value">SQLite</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Audio Processor</span>
+                    <span class="info-value">yt-dlp + FFmpeg</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Audio Quality</span>
+                    <span class="info-value">192kbps MP3</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Auto-dismiss flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

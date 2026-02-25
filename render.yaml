@@ -1,0 +1,15 @@
+# Render Blueprint Configuration
+# This file defines how Render should deploy your application
+
+services:
+  - type: web
+    name: soundcloud-mp3-downloader
+    runtime: python
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    # Render native environment includes FFmpeg

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <!--
+    SoundCloud MP3 Downloader - Public Homepage
+    ============================================
+    Educational Project - SEO Optimized Template
+    
+    This template demonstrates:
+    - Dynamic SEO meta tags from database
+    - Semantic HTML5 structure
+    - Mobile-responsive design
+    - Accessible form implementation
+    - Multi-language support (i18n)
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Dynamic SEO Meta Tags - Managed from Admin Panel -->
+    <title>{{ t.site_title }}</title>
+    <meta name="description" content="{{ t.site_subtitle }}">
+    <meta name="keywords" content="{{ settings.get('meta_keywords', 'soundcloud, mp3, download') }}">
+    
+    <!-- Open Graph Tags for Social Sharing -->
+    <meta property="og:title" content="{{ t.site_title }}">
+    <meta property="og:description" content="{{ t.site_subtitle }}">
+    <meta property="og:type" content="website">
+    
+    <!-- Mobile Optimization -->
+    <meta name="theme-color" content="#ff5500">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- 
+    Header Section
+    Contains site branding and navigation
+    -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <span class="logo-icon">🎵</span>
+                    <span class="logo-text">{{ t.site_title }}</span>
+                </div>
+                
+                <!-- Language Dropdown -->
+                <div class="language-dropdown">
+                    <button class="language-btn" id="languageBtn">
+                        <span class="lang-icon">🌐</span>
+                        <span class="lang-text">{{ t.lang_name }}</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="languageMenu">
+                        <div class="dropdown-columns">
+                            <div class="dropdown-column">
+                                {% for code, name in languages[:13] %}
+                                <a href="?lang={{ code }}" class="dropdown-item{% if code == current_lang %} active{% endif %}" data-lang="{{ code }}">{{ name }}</a>
+                                {% endfor %}
+                            </div>
+                            <div class="dropdown-column">
+                                {% for code, name in languages[13:] %}
+                                <a href="?lang={{ code }}" class="dropdown-item{% if code == current_lang %} active{% endif %}" data-lang="{{ code }}">{{ name }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <p class="tagline">{{ t.site_subtitle }}</p>
+        </div>
+    </header>
+
+    <!-- 
+    Main Content Section
+    Hero area with download form
+    -->
+    <main>
+        <!-- Hero Section with Download Form -->
+        <section class="hero">
+            <div class="container">
+                <!-- H1 for SEO - Primary heading -->
+                <h1 class="hero-title">{{ t.hero_heading }}</h1>
+                <p class="hero-description">{{ t.hero_description }}</p>
+                
+                <!-- Download Form -->
+                <form id="downloadForm" class="download-form" action="{{ url_for('download') }}" method="POST">
+                    <div class="input-group">
+                        <input 
+                            type="url" 
+                            id="urlInput"
+                            name="url" 
+                            class="url-input" 
+                            placeholder="{{ t.input_placeholder }}"
+                            required
+                            autocomplete="off"
+                            aria-label="SoundCloud URL"
+                        >
+                        <button type="submit" class="download-btn" id="downloadBtn">
+                            <span class="btn-text">{{ t.download_btn }}</span>
+                            <span class="btn-loading" style="display: none;">
+                                <span class="spinner"></span>
+                                {{ t.processing }}
+                            </span>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Status Messages -->
+                <div id="statusMessage" class="status-message" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- How It Works Section - H2 for SEO -->
+        <section class="how-it-works">
+            <div class="container">
+                <h2>{{ t.how_it_works }}</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>{{ t.step_1_title }}</h3>
+                        <p>{{ t.step_1_desc }}</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>{{ t.step_2_title }}</h3>
+                        <p>{{ t.step_2_desc }}</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>{{ t.step_3_title }}</h3>
+                        <p>{{ t.step_3_desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2>{{ t.why_choose }}</h2>
+                <div class="features-grid">
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <h3>{{ t.fast_downloads }}</h3>
+                        <p>{{ t.fast_downloads_desc }}</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎧</div>
+                        <h3>{{ t.high_quality }}</h3>
+                        <p>{{ t.high_quality_desc }}</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">💯</div>
+                        <h3>{{ t.free_to_use }}</h3>
+                        <p>{{ t.free_to_use_desc }}</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📱</div>
+                        <h3>{{ t.mobile_friendly }}</h3>
+                        <p>{{ t.mobile_friendly_desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Disclaimer Section -->
+        <section class="disclaimer">
+            <div class="container">
+                <h2>{{ t.important_notice }}</h2>
+                <p>{{ t.disclaimer }}</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>{{ t.footer_text }}</p>
+        </div>
+    </footer>
+
+    <!-- 
+    JavaScript for Form Handling
+    Implements loading state and error handling
+    -->
+    <script>
+        /**
+         * Translation strings for JavaScript
+         */
+        const TRANSLATIONS = {
+            error_no_url: "{{ t.error_no_url }}",
+            error_invalid_url: "{{ t.error_invalid_url }}",
+            error_processing: "{{ t.error_processing }}",
+            success_download: "{{ t.success_download }}",
+            error_network: "{{ t.error_network }}"
+        };
+        
+        /**
+         * Download Form Handler
+         * Manages form submission with loading states and error handling
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('downloadForm');
+            const urlInput = document.getElementById('urlInput');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const btnText = downloadBtn.querySelector('.btn-text');
+            const btnLoading = downloadBtn.querySelector('.btn-loading');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Validate SoundCloud URL format
+            function isValidSoundCloudUrl(url) {
+                const pattern = /^https?:\/\/(www\.)?(soundcloud\.com|snd\.sc)\/[\w\-\.]+/i;
+                return pattern.test(url);
+            }
+            
+            // Show status message
+            function showMessage(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message ' + type;
+                statusMessage.style.display = 'block';
+            }
+            
+            // Hide status message
+            function hideMessage() {
+                statusMessage.style.display = 'none';
+            }
+            
+            // Set loading state
+            function setLoading(loading) {
+                if (loading) {
+                    downloadBtn.disabled = true;
+                    btnText.style.display = 'none';
+                    btnLoading.style.display = 'inline-flex';
+                    urlInput.disabled = true;
+                } else {
+                    downloadBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
+                    urlInput.disabled = false;
+                }
+            }
+            
+            // Form submission handler
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const url = urlInput.value.trim();
+                
+                // Client-side validation
+                if (!url) {
+                    showMessage(TRANSLATIONS.error_no_url, 'error');
+                    return;
+                }
+                
+                if (!isValidSoundCloudUrl(url)) {
+                    showMessage(TRANSLATIONS.error_invalid_url, 'error');
+                    return;
+                }
+                
+                // Start loading
+                hideMessage();
+                setLoading(true);
+                showMessage(TRANSLATIONS.error_processing, 'info');
+                
+                try {
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('url', url);
+                    
+                    // Send request
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        // Check if response is a file download
+                        const contentType = response.headers.get('content-type');
+                        
+                        if (contentType && contentType.includes('audio')) {
+                            // Handle file download
+                            const blob = await response.blob();
+                            const disposition = response.headers.get('content-disposition');
+                            let filename = 'download.mp3';
+                            
+                            if (disposition) {
+                                const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                                if (match) filename = match[1].replace(/['"]/g, '');
+                            }
+                            
+                            // Create download link
+                            const downloadUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(downloadUrl);
+                            
+                            showMessage(TRANSLATIONS.success_download, 'success');
+                            urlInput.value = '';
+                        } else {
+                            // Unexpected response
+                            const data = await response.json();
+                            showMessage(data.error || 'An unexpected error occurred.', 'error');
+                        }
+                    } else {
+                        // Error response
+                        const data = await response.json();
+                        showMessage(data.error || 'Failed to process the download.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Download error:', error);
+                    showMessage(TRANSLATIONS.error_network, 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+            
+            // Clear error message on input
+            urlInput.addEventListener('input', function() {
+                if (statusMessage.classList.contains('error')) {
+                    hideMessage();
+                }
+            });
+            
+            // Language Dropdown Toggle
+            const languageBtn = document.getElementById('languageBtn');
+            const languageMenu = document.getElementById('languageMenu');
+            
+            languageBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                languageMenu.classList.toggle('show');
+                languageBtn.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!languageBtn.contains(e.target) && !languageMenu.contains(e.target)) {
+                    languageMenu.classList.remove('show');
+                    languageBtn.classList.remove('active');
+                }
+            });
+            
+            // Update selected language text
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    dropdownItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelector('.lang-text').textContent = this.textContent;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
