@@ -235,10 +235,40 @@ def index():
     translations = get_all_translations(current_lang)
     languages = get_language_list()
     
+    # Merge translations with admin settings (admin settings override translations)
+    # This allows admin to customize text while keeping translation as fallback
+    merged_translations = translations.copy()
+    
+    # Map database setting keys to translation keys
+    setting_to_translation = {
+        'site_title': 'site_title',
+        'site_subtitle': 'site_subtitle',
+        'meta_title': 'site_title',
+        'meta_description': 'site_subtitle',
+        'hero_heading': 'hero_heading',
+        'hero_description': 'hero_description',
+        'how_it_works_title': 'how_it_works',
+        'step_1_title': 'step_1_title',
+        'step_1_desc': 'step_1_desc',
+        'step_2_title': 'step_2_title',
+        'step_2_desc': 'step_2_desc',
+        'step_3_title': 'step_3_title',
+        'step_3_desc': 'step_3_desc',
+        'disclaimer_text': 'disclaimer',
+        'footer_text': 'footer_text',
+    }
+    
+    # Only override if we're in English (admin settings are in English)
+    # For other languages, use translations
+    if current_lang == 'en':
+        for db_key, trans_key in setting_to_translation.items():
+            if db_key in settings and settings[db_key]:
+                merged_translations[trans_key] = settings[db_key]
+    
     return render_template(
         'index.html',
         settings=settings,
-        t=translations,
+        t=merged_translations,
         current_lang=current_lang,
         languages=languages
     )

@@ -17,13 +17,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Dynamic SEO Meta Tags - Managed from Admin Panel -->
-    <title>{{ t.site_title }}</title>
-    <meta name="description" content="{{ t.site_subtitle }}">
+    <title>{{ settings.get('meta_title', t.site_title) }}</title>
+    <meta name="description" content="{{ settings.get('meta_description', t.site_subtitle) }}">
     <meta name="keywords" content="{{ settings.get('meta_keywords', 'soundcloud, mp3, download') }}">
     
     <!-- Open Graph Tags for Social Sharing -->
-    <meta property="og:title" content="{{ t.site_title }}">
-    <meta property="og:description" content="{{ t.site_subtitle }}">
+    <meta property="og:title" content="{{ settings.get('meta_title', t.site_title) }}">
+    <meta property="og:description" content="{{ settings.get('meta_description', t.site_subtitle) }}">
     <meta property="og:type" content="website">
     
     <!-- Mobile Optimization -->
