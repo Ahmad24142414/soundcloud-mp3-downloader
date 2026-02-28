@@ -273,11 +273,18 @@
                     const formData = new FormData();
                     formData.append('url', url);
                     
+                    // Create abort controller with 5 minute timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 300000);
+                    
                     // Send request
                     const response = await fetch(form.action, {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        signal: controller.signal
                     });
+                    
+                    clearTimeout(timeoutId);
                     
                     if (response.ok) {
                         // Check if response is a file download
@@ -318,7 +325,11 @@
                     }
                 } catch (error) {
                     console.error('Download error:', error);
-                    showMessage(TRANSLATIONS.error_network, 'error');
+                    if (error.name === 'AbortError') {
+                        showMessage('Request timed out. Please try again.', 'error');
+                    } else {
+                        showMessage(error.message || TRANSLATIONS.error_network, 'error');
+                    }
                 } finally {
                     setLoading(false);
                 }
